@@ -16,6 +16,7 @@ app.include_router(course.router, prefix="/api/courses", tags=["courses"])
 app.include_router(exam.router, prefix="/api/exams", tags=["exams"])
 app.include_router(payment.router, prefix="/api/payments", tags=["payments"])
 
+
 @app.on_event("startup")
 async def startup_event():
     # Initialize any startup events here

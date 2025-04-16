@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import uuid
 from app.crud import user as crud_user
-from app.schemas.user import User, UserCreate
+from app.schemas.user import User, UserCreate, UserLogin
 from app.api.deps import get_db, get_current_active_user
 from app.core.security import verify_access_token, create_access_token, pwd_context
 
@@ -24,9 +23,16 @@ def read_user(user_id: uuid.UUID, db: Session = Depends(get_db), current_user=De
     return user
 
 @router.post("/login")
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    user = crud_user.get_user_by_email(db, email=form_data.username)
-    if not user or not pwd_context.verify(form_data.password, user.hashed_password):
-        raise HTTPException(status_code=400, detail="Incorrect email or password")
-    access_token = create_access_token({"sub": str(user.id), "role": user.role, "email": user.email})
+def login(user_login: UserLogin, db: Session = Depends(get_db)):
+    user = crud_user.get_user_by_username(db, username=user_login.username)
+
+    if not user or not pwd_context.verify(user_login.password, user.hashed_password):
+        raise HTTPException(status_code=400, detail="Incorrect username or password")
+
+    access_token = create_access_token(data={
+        "sub": str(user.id),
+        "role": user.role,
+        "email": user.email
+    })
+
     return {"access_token": access_token, "token_type": "bearer"}

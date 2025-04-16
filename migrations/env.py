@@ -21,7 +21,7 @@ import app.models.practice_class
 import app.models.course_registration
 import app.models.exam_result
 import app.models.personal_infor_document
-import app.models.student_health_check
+import app.models.health_check_document
 import app.models.health_check_schedule
 import app.models.absent_form
 import app.models.complaint

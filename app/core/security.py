@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-import jwt
+import jwt  # ← Đây là PyJWT
 from datetime import datetime, timedelta
 from fastapi import HTTPException, status
 
