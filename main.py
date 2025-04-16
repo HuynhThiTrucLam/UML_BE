@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api import user, student, staff, course, exam, payment
+from app.api import user, student, staff, course, exam, payment, license_type
 from app.core.database import engine, Base
 from app.core.config import settings
 
@@ -15,6 +15,7 @@ app.include_router(staff.router, prefix="/api/staffs", tags=["staffs"])
 app.include_router(course.router, prefix="/api/courses", tags=["courses"])
 app.include_router(exam.router, prefix="/api/exams", tags=["exams"])
 app.include_router(payment.router, prefix="/api/payments", tags=["payments"])
+app.include_router(license_type.router, prefix="/api/license_type", tags=["license_types"])
 
 
 @app.on_event("startup")
