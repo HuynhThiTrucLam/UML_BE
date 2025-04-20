@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from app.api import course_registration, user, student, staff, course, exam, payment, license_type, health_check_schedule, health_check_document, personal_infor_document
 from app.core.database import engine, Base
 from app.core.config import settings
+from fastapi.middleware.cors import CORSMiddleware
 
 # Create all tables (for production, use migrations instead)
 Base.metadata.create_all(bind=engine)
@@ -21,6 +22,15 @@ app.include_router(health_check_document.router, prefix="/api/health_check_docum
 app.include_router(personal_infor_document.router, prefix="/api/personal_infor_document", tags=["personal_infor_document"])
 app.include_router(course_registration.router, prefix="/api/course_registration", tags=["course_registration"])
 
+# CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Disposition"],
+)
 
 @app.on_event("startup")
 async def startup_event():

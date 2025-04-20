@@ -8,8 +8,8 @@ class HealthCheckScheduleBase(BaseModel):
     scheduled_datetime: datetime = Field(..., example="2025-05-01T10:00:00Z")
     description: str = Field(None, example="Annual health check")
     status: str = Field(..., example="scheduled")
-    created_at: date
-    updated_at: date
+    created_at: datetime
+    updated_at: datetime
 
 class HealthCheckScheduleCreate(BaseModel):
     course_id: UUID4 = Field(..., example="123e4567-e89b-12d3-a456-426614174000")
