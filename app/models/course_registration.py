@@ -24,8 +24,6 @@ class CourseRegistration(Base):
     updated_at = Column(String, nullable=False)
     method = Column(String, nullable=False)
     status = Column(String, nullable=False, default="pending")
-    approved_at = Column(String)
-    rejected_at = Column(String)
     note = Column(String)
 
     # Relationships

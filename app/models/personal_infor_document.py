@@ -1,5 +1,6 @@
-from sqlalchemy import Column, Integer, String, ForeignKey,UUID
+from sqlalchemy import Column, Integer, String, ForeignKey, UUID, DateTime
 from sqlalchemy.orm import relationship
+from sqlalchemy.sql import func
 import uuid
 from app.core.database import Base
 
@@ -18,5 +19,8 @@ class PersonalInforDocument(Base):
     identity_img_front = Column(String)
     identity_img_back = Column(String)
     avatar = Column(String)
+    
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="personal_documents")

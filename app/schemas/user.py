@@ -6,7 +6,6 @@ from datetime import datetime
 # Shared fields across all schemas
 class UserBase(BaseModel):
     user_name: str = Field(..., example="admin")
-
     email: EmailStr = Field(..., example="admin@example.com")
     role: str = Field(..., example="admin")
     phone_number: str = Field(..., example="0366400874")

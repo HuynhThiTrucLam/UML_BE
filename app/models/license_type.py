@@ -20,7 +20,5 @@ class LicenseType(Base):
     training_duration = Column(Integer, nullable=False)  # sửa chính tả
     fee = Column(Integer, nullable=False)
 
-    # One-to-Many relationship with HealthCheckSchedule
-    health_check_schedules = relationship("HealthCheckSchedule", back_populates="license_type")
     # One-to-Many relationship with Course
     courses = relationship("Course", back_populates="license_type")

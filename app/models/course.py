@@ -36,3 +36,4 @@ class Course(Base):
     # Relationships
     license_type = relationship("LicenseType", back_populates="courses")
     registrations = relationship("CourseRegistration", back_populates="course")
+    health_check_schedules = relationship("HealthCheckSchedule", back_populates="course")

@@ -15,14 +15,14 @@ def create_student(
     db: Session = Depends(get_db),
     current_user=Depends(require_roles("staff", "admin"))
 ):
-    return crud_student.create_student(db=db, student_in=student_in, user_id=current_user["id"])
+    return crud_student.create_student(db=db, student_in=student_in)
 
-# @router.get("/{student_id}", response_model=Student)
-# def read_student(student_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_active_user)):
-#     student = crud_student.get_student(db, student_id=student_id)
-#     if not student:
-#         raise HTTPException(status_code=404, detail="Student not found")
-#     return student
+@router.get("/{student_id}", response_model=Student)
+def read_student(student_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_active_user)):
+    student = crud_student.get_student(db, student_id=student_id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return student
 
 @router.get("/")
 def list_student(current_user=Depends(get_current_active_user)):

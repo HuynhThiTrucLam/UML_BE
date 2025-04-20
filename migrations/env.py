@@ -16,8 +16,7 @@ import app.models.payment
 import app.models.license
 import app.models.license_type
 import app.models.vehicle
-import app.models.theory_class
-import app.models.practice_class
+import app.models.schedule
 import app.models.course_registration
 import app.models.exam_result
 import app.models.personal_infor_document

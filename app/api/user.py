@@ -11,9 +11,9 @@ router = APIRouter()
 
 @router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)
 def create_user(user_in: UserCreate, db: Session = Depends(get_db)):
-    db_user = crud_user.get_user_by_username(db, username=user_in.user_name)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Username already registered")
+    # db_user = crud_user.get_user_by_username(db, username=user_in.user_name)
+    # if db_user:
+    #     raise HTTPException(status_code=400, detail="Username already registered")
     return crud_user.create_user(db=db, user_in=user_in)
 
 # @router.get("/{user_id}", response_model=User)

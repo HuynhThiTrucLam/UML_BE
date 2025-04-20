@@ -1,16 +1,17 @@
-from pydantic import BaseModel
+from datetime import datetime
+from pydantic import BaseModel, UUID4
 from typing import Optional
 
 class StudentBase(BaseModel):
-    enrollment_number: str
-    course_of_study: Optional[str] = None
+    user_id: UUID4
 
 class StudentCreate(StudentBase):
     pass
 
 class StudentInDB(StudentBase):
-    id: int
-    user_id: int
+    id: UUID4
+    user_id: UUID4
+    created_at: datetime
 
     class Config:
         orm_mode = True
