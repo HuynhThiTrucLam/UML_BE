@@ -15,7 +15,6 @@ import app.models.exam
 import app.models.payment
 import app.models.license
 import app.models.license_type
-import app.models.vehicle
 import app.models.schedule
 import app.models.course_registration
 import app.models.exam_result
@@ -25,8 +24,6 @@ import app.models.health_check_schedule
 import app.models.absent_form
 import app.models.complaint
 import app.models.payment_method
-import app.models.staff_certification
-import app.models.vehicle_maintenance
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

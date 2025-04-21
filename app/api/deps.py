@@ -22,8 +22,9 @@ def get_current_active_user(credentials: HTTPAuthorizationCredentials = Security
     user = {"id": uuid.UUID(payload["sub"]), "email": payload["email"], "role": payload["role"]}
     return user
 
-def require_roles(*roles):
+def require_roles(roles):
     def role_checker(current_user=Depends(get_current_active_user)):
+        print(f"Current user: {roles}")
         if current_user["role"] not in roles:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

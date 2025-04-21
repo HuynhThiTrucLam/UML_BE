@@ -20,6 +20,7 @@ class User(Base):
     # One-to-One relationships
     student = relationship("Student", back_populates="user", uselist=False)
     staff = relationship("Staff", back_populates="user", uselist=False)
-    
+    instructor = relationship("Instructor", back_populates="user", uselist=False)
+    certifications = relationship("Certification", back_populates="user")  # Changed from certification to certifications
     # One-to-Many: a user might have multiple personal documents
     personal_documents = relationship("PersonalInforDocument", back_populates="user")

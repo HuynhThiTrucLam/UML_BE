@@ -1,8 +1,8 @@
 from sqlalchemy import Column, String, Integer, ForeignKey, UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy import CheckConstraint
-from app.core.database import Base  # Ensure you import Base from the correct module
-
+from app.core.database import Base
+from app.models import schedule  # Ensure you import Base from the correct module
 
 
 class CourseRegistration(Base):
@@ -11,7 +11,7 @@ class CourseRegistration(Base):
 
     __table_args__ = (
         CheckConstraint(
-            "status IN ('pending', 'approved', 'rejected')",
+            "status IN ('pending', 'approved','payment','successful', 'rejected')",
             name="check_status_valid"
         ),
     )
@@ -29,3 +29,4 @@ class CourseRegistration(Base):
     # Relationships
     student = relationship("Student", back_populates="course_registrations")
     course = relationship("Course", back_populates="registrations")
+    payments = relationship("Payment", back_populates="course_registration")

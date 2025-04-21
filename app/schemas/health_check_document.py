@@ -2,6 +2,8 @@ from pydantic import BaseModel, UUID4, Field
 from typing import Optional, List
 from datetime import datetime, date
 
+from app.schemas.health_check_schedule import HealthCheckSchedule
+
 class HealthCheckDocumentBase(BaseModel):
     """
     HealthCheckDocument is a Pydantic model that represents the health check document.
@@ -36,7 +38,7 @@ class HealthCheckDocument(HealthCheckDocumentBase):
     id: UUID4
     created_at: datetime 
     updated_at: datetime
-
+    health_check: Optional[HealthCheckSchedule] = None
     model_config = {
         "from_attributes": True,
         "arbitrary_types_allowed": True,

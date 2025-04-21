@@ -17,8 +17,5 @@ from app.models.exam_result import ExamResult
 from app.models.license import License
 from app.models.payment import Payment
 from app.models.payment_method import PaymentMethod
-from app.models.vehicle import Vehicle
-from app.models.vehicle_maintenance import VehicleMaintenance
 from app.models.absent_form import AbsentForm
 from app.models.complaint import Complaint
-from app.models.staff_certification import StaffCertification

@@ -11,7 +11,8 @@ router = APIRouter()
 def create_course(
     course_in: CourseCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles("admin"))
+    current_user=Depends(require_roles(["admin"]))
+
 ):
     """
     Create a new course.

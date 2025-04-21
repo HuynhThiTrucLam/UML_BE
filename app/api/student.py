@@ -13,7 +13,7 @@ router = APIRouter()
 def create_student(
     student_in: StudentCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles("staff", "admin"))
+    current_user=Depends(require_roles(["staff", "admin"]))
 ):
     return crud_student.create_student(db=db, student_in=student_in)
 

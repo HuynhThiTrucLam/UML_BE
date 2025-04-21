@@ -18,3 +18,4 @@ class Student(Base):
     # Quan hệ đến nhiều HealthCheckDocuments
     health_check_documents = relationship("HealthCheckDocument", back_populates="student")
     course_registrations = relationship("CourseRegistration", back_populates="student")
+    payments = relationship("Payment", back_populates="student")

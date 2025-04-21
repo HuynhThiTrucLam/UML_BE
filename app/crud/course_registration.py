@@ -12,12 +12,13 @@ from app.crud.user import create_user
 from app.models.course_registration import CourseRegistration
 from app.models.personal_infor_document import PersonalInforDocument
 from app.models.health_check_document import HealthCheckDocument as HealthCheckDocumentModel
+from app.models.student import Student
 from app.schemas.course import Course
 from app.schemas.course_registration import CourseRegistrationCreate, CourseRegistration as CourseRegistrationSchema
 from app.schemas.health_check_document import HealthCheckDocument, HealthCheckDocumentCreate
 from app.schemas.personal_infor_document import PersonalInformationDocument, PersonalInformationDocumentCreate
-from app.schemas.student import Student, StudentCreate
-from app.schemas.user import UserCreate
+from app.schemas.student import Student as StudentSchema, StudentCreate
+from app.schemas.user import UserBase, UserCreate
 
 from logging import getLogger
 
@@ -163,7 +164,7 @@ def get_course_registration_by_id(db: Session, course_registration_id: uuid.UUID
     # Get the related student data
     student = db_course_registration.student
     if student:
-        result.student = Student.model_validate(student, from_attributes=True)
+        result.student = StudentSchema.model_validate(student, from_attributes=True)
     
     # Get the course data
     if db_course_registration.course:
@@ -187,5 +188,48 @@ def get_course_registration_by_id(db: Session, course_registration_id: uuid.UUID
         
         if personal_doc:
             result.personal_doc = PersonalInformationDocument.model_validate(personal_doc)
-    
+            personal_user = UserBase.model_validate(personal_doc.user, from_attributes=True)
+            result.personal_doc.email = personal_user.email
+            result.personal_doc.phone_number = personal_user.phone_number
+
     return result
+
+
+def get_course_registration_by_identity_number(db: Session, identity_number: str) -> CourseRegistrationSchema:
+    """
+    Get a course registration by identity number.
+    
+    Args:
+        db: SQLAlchemy database session
+        identity_number: The identity number of the user
+        
+    Returns:
+        CourseRegistration: The course registration record with all related data
+    """
+    # First, find the personal information document with the given identity number
+    personal_info_doc = db.query(PersonalInforDocument).filter(
+        PersonalInforDocument.identity_number == identity_number
+    ).first()
+    
+    if not personal_info_doc:
+        raise HTTPException(status_code=404, detail="No personal information found with this identity number")
+    
+    # Get the user ID from the personal information document
+    user_id = personal_info_doc.user_id
+    
+    # Find the student associated with this user
+    student = db.query(Student).filter(Student.user_id == user_id).first()
+    
+    if not student:
+        raise HTTPException(status_code=404, detail="No student record found for this identity number")
+    
+    # Find the course registration for this student
+    course_registration = db.query(CourseRegistration).filter(
+        CourseRegistration.student_id == student.id
+    ).first()
+    
+    if not course_registration:
+        raise HTTPException(status_code=404, detail="No course registration found for this identity number")
+    
+    # Reuse the existing function to get the full details
+    return get_course_registration_by_id(db, course_registration.id)

@@ -8,6 +8,8 @@ class PersonalInformationDocumentBase(BaseModel):
     date_of_birth: date
     gender: str
     address: str
+    email: Optional[str] = None
+    phone_number: Optional[str] = None
 
     identity_number: str
     identity_img_front: str

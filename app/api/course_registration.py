@@ -29,3 +29,14 @@ def get_course_registration(
     if not db_course_registration:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course registration not found")
     return db_course_registration
+
+#get a course registration by indentity_number
+@router.get("/identity_number/{identity_number}", response_model=CourseRegistration)
+def get_course_registration_by_identity_number(
+    identity_number: str,
+    db: Session = Depends(get_db),
+):
+    db_course_registration = crud_cousre_registration.get_course_registration_by_identity_number(db=db, identity_number=identity_number)
+    if not db_course_registration:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course registration not found")
+    return db_course_registration
