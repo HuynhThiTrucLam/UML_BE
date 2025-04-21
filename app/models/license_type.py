@@ -8,10 +8,12 @@ import uuid
 class LicenseType(Base):
     __tablename__ = "license_types"
     __table_args__ = (
-        CheckConstraint('training_duration > 0', name='check_training_duration_positive'),
-        CheckConstraint('fee >= 0', name='check_fee_non_negative'),
+        CheckConstraint(
+            "training_duration > 0", name="check_training_duration_positive"
+        ),
+        CheckConstraint("fee >= 0", name="check_fee_non_negative"),
     )
-    
+
     id = Column(UUID, primary_key=True, index=True, default=uuid.uuid4)
 
     type_name = Column(String, unique=True, nullable=False, index=True)

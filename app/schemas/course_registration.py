@@ -10,11 +10,17 @@ from app.crud import health_check_schedule as health_check_schedule_crud
 from app.crud import license_type as license_type_crud
 from sqlalchemy.orm import Session
 from app.api.deps import get_db
+
 # Import Pydantic schemas instead of SQLAlchemy models
-from app.schemas.health_check_document import HealthCheckDocument as HealthCheckDocSchema
+from app.schemas.health_check_document import (
+    HealthCheckDocument as HealthCheckDocSchema,
+)
 from app.schemas.course import Course as CourseSchema
-from app.schemas.personal_infor_document import PersonalInformationDocument as PersonalDocSchema
+from app.schemas.personal_infor_document import (
+    PersonalInformationDocument as PersonalDocSchema,
+)
 from app.schemas.student import Student as StudentSchema
+
 
 class CourseRegistrationCreate(BaseModel):
     identity_number: str
@@ -32,8 +38,7 @@ class CourseRegistrationCreate(BaseModel):
     health_check_schedule_id: UUID4
     role: str
 
-
-    @field_validator('course_id')
+    @field_validator("course_id")
     def validate_course_id(cls, v):
         db = next(get_db())
         course = course_crud.get_course(db, course_id=v)
@@ -41,15 +46,17 @@ class CourseRegistrationCreate(BaseModel):
             raise ValueError(f"Course with ID {v} does not exist")
         return v
 
-    @field_validator('health_check_schedule_id')
+    @field_validator("health_check_schedule_id")
     def validate_health_check_schedule_id(cls, v):
         db = next(get_db())
-        health_check = health_check_schedule_crud.get_health_check_schedule(db, health_check_schedule_id=v)
+        health_check = health_check_schedule_crud.get_health_check_schedule(
+            db, health_check_schedule_id=v
+        )
         if not health_check:
             raise ValueError(f"Health check schedule with ID {v} does not exist")
         return v
-    
-    @field_validator('license_type_id')
+
+    @field_validator("license_type_id")
     def validate_license_type_id(cls, v):
         # Use dependency injection to get db and then use the crud function
         db = next(get_db())
@@ -58,16 +65,15 @@ class CourseRegistrationCreate(BaseModel):
             raise ValueError(f"License type with ID {v} does not exist")
         return v
 
+
 class CourseRegistrationUpdate(BaseModel):
     status: Optional[str] = None
     note: Optional[str] = None
-    
-    model_config = {
-        "from_attributes": True,
-        "arbitrary_types_allowed": True
-    }
-    
-#Response
+
+    model_config = {"from_attributes": True, "arbitrary_types_allowed": True}
+
+
+# Response
 class CourseRegistration(BaseModel):
     id: UUID4
 
@@ -80,11 +86,11 @@ class CourseRegistration(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
-    
+
     note: Optional[str] = None
 
     model_config = {
         "from_attributes": True,
         "arbitrary_types_allowed": True,
-        "use_enum_values": True
+        "use_enum_values": True,
     }

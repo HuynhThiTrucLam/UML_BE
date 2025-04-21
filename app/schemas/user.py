@@ -10,13 +10,18 @@ class UserBase(BaseModel):
     role: str = Field(..., example="admin")
     phone_number: str = Field(..., example="0366400874")
 
+
 class UserLogin(BaseModel):
     username: str = Field(..., example="admin")
     password: str = Field(..., example="admin123")
-    
+
+
 # Schema used when creating a user (request body)
 class UserCreate(UserBase):
-    password: str = Field(..., example="admin123")  # Raw password (will be hashed in backend)
+    password: str = Field(
+        ..., example="admin123"
+    )  # Raw password (will be hashed in backend)
+
 
 # Schema used for updating a user``
 class UserUpdate(BaseModel):

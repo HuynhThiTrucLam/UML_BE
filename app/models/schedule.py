@@ -3,10 +3,13 @@ from sqlalchemy.orm import relationship
 import uuid
 from app.core.database import Base
 
+
 class Schedule(Base):
     __tablename__ = "schedules"
     __table_args__ = (
-        CheckConstraint("type IN ('theory', 'practice','exam')", name="check_type_of_schedule"),
+        CheckConstraint(
+            "type IN ('theory', 'practice','exam')", name="check_type_of_schedule"
+        ),
     )
 
     id = Column(UUID, primary_key=True, index=True, default=uuid.uuid4)
@@ -15,7 +18,9 @@ class Schedule(Base):
     end_time = Column(String, index=True, nullable=False)  # ISO format time string
     location = Column(String, index=True, nullable=False)
     type = Column(String, index=True, nullable=False)  # e.g., "theory", "practice"
-    instructor_id = Column(UUID, ForeignKey("instructors.id"), index=True, nullable=True)
+    instructor_id = Column(
+        UUID, ForeignKey("instructors.id"), index=True, nullable=True
+    )
     max_students = Column(Integer, nullable=False)
 
     # Relationships

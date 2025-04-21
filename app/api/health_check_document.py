@@ -1,7 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.schemas.health_check_document import HealthCheckDocument,HealthCheckDocumentCreate, HealthCheckDocumentUpdate
+from app.schemas.health_check_document import (
+    HealthCheckDocument,
+    HealthCheckDocumentCreate,
+    HealthCheckDocumentUpdate,
+)
 from app.crud import health_check_document as crud_health_check_document
 from app.api.deps import get_db, get_current_active_user, require_roles
 import uuid
@@ -9,11 +13,11 @@ import uuid
 
 router = APIRouter()
 
+
 # create health check document
 @router.post(
     "/",
     response_model=HealthCheckDocument,
-
     status_code=status.HTTP_201_CREATED,
     summary="Create a health check document",
 )
@@ -53,13 +57,16 @@ async def get_health_check_documents_by_student_id(
     """
     Get all health check documents by student id.
     """
-    health_check_documents = crud_health_check_document.get_health_check_documents_by_student_id(
-        db=db,
-        student_id=student_id,
+    health_check_documents = (
+        crud_health_check_document.get_health_check_documents_by_student_id(
+            db=db,
+            student_id=student_id,
+        )
     )
     return health_check_documents
 
-# update health check document 
+
+# update health check document
 @router.put(
     "/{document_id}",
     response_model=HealthCheckDocument,

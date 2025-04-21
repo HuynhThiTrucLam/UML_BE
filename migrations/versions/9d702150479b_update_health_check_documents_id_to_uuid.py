@@ -5,6 +5,7 @@ Revises: 97b475e893cc
 Create Date: 2025-04-18 10:55:05.906576
 
 """
+
 from typing import Sequence, Union
 
 from alembic import op
@@ -13,8 +14,8 @@ from sqlalchemy.dialects.postgresql import UUID
 
 
 # revision identifiers, used by Alembic.
-revision: str = '9d702150479b'
-down_revision: Union[str, None] = '97b475e893cc'
+revision: str = "9d702150479b"
+down_revision: Union[str, None] = "97b475e893cc"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -22,7 +23,8 @@ depends_on: Union[str, Sequence[str], None] = None
 def upgrade() -> None:
     """Upgrade schema."""
     # Using raw SQL for more control over the migration process
-    op.execute("""
+    op.execute(
+        """
     DO $$
     DECLARE
       constraint_exists boolean;
@@ -67,7 +69,8 @@ def upgrade() -> None:
         CREATE INDEX IF NOT EXISTS ix_health_check_documents_health_check_id ON health_check_documents(health_check_id);
     END;
     $$;
-    """)
+    """
+    )
 
 
 def downgrade() -> None:
@@ -75,9 +78,11 @@ def downgrade() -> None:
     # This is a complex migration to undo, as we would need to map UUIDs back to integers.
     # Since this is fixing a data type mismatch, a proper downgrade would require
     # knowing the original integer values which we no longer have.
-    op.execute("""
+    op.execute(
+        """
     -- Just a placeholder for downgrade, actual implementation would depend on having the original ID mapping
     -- which is not feasible in this case.
     SELECT 'Downgrade not supported for this migration'::text;
-    """)
+    """
+    )
     pass

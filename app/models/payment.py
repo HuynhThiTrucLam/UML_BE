@@ -3,9 +3,10 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import Column, UUID, String, Float, ForeignKey, Integer
 from app.core.database import Base
 
+
 class Payment(Base):
     __tablename__ = "payments"
-    
+
     id = Column(UUID, primary_key=True, index=True)
     payment_method_id = Column(Integer, ForeignKey("payment_methods.id"))
     student_id = Column(UUID, ForeignKey("students.id"))

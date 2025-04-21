@@ -8,14 +8,13 @@ from app.models import schedule  # Ensure you import Base from the correct modul
 class CourseRegistration(Base):
     __tablename__ = "course_registrations"
 
-
     __table_args__ = (
         CheckConstraint(
             "status IN ('pending', 'approved','payment','successful', 'rejected')",
-            name="check_status_valid"
+            name="check_status_valid",
         ),
     )
-    
+
     id = Column(UUID, primary_key=True, index=True)
     student_id = Column(UUID, ForeignKey("students.id"))
     course_id = Column(UUID, ForeignKey("courses.id"))

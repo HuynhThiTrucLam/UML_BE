@@ -3,9 +3,10 @@ from sqlalchemy.orm import relationship
 import uuid
 from app.core.database import Base
 
+
 class User(Base):
     __tablename__ = "users"
-    
+
     id = Column(UUID, primary_key=True, index=True, default=uuid.uuid4)
     user_name = Column(String, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
@@ -14,13 +15,17 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
 
     is_active = Column(Boolean, default=True)
-    role = Column(String, nullable=False)  # e.g., "student", "staff", "admin", "teacher"
+    role = Column(
+        String, nullable=False
+    )  # e.g., "student", "staff", "admin", "teacher"
     created_at = Column(String, nullable=False)  # ISO format date string
 
     # One-to-One relationships
     student = relationship("Student", back_populates="user", uselist=False)
     staff = relationship("Staff", back_populates="user", uselist=False)
     instructor = relationship("Instructor", back_populates="user", uselist=False)
-    certifications = relationship("Certification", back_populates="user")  # Changed from certification to certifications
+    certifications = relationship(
+        "Certification", back_populates="user"
+    )  # Changed from certification to certifications
     # One-to-Many: a user might have multiple personal documents
     personal_documents = relationship("PersonalInforDocument", back_populates="user")

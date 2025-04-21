@@ -5,12 +5,16 @@ import uuid
 from typing import List, Optional
 
 
-def get_license_types(db: Session, skip: int = 0, limit: int = 100) -> List[LicenseType]:
+def get_license_types(
+    db: Session, skip: int = 0, limit: int = 100
+) -> List[LicenseType]:
     """Get all license types with pagination"""
     return db.query(LicenseType).offset(skip).limit(limit).all()
 
 
-def get_license_type_by_id(db: Session, license_type_id: uuid.UUID) -> Optional[LicenseType]:
+def get_license_type_by_id(
+    db: Session, license_type_id: uuid.UUID
+) -> Optional[LicenseType]:
     """Get a license type by its ID"""
     return db.query(LicenseType).filter(LicenseType.id == license_type_id).first()
 
@@ -43,7 +47,7 @@ def update_license_type(
     update_data = license_type.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(db_license_type, key, value)
-    
+
     db.commit()
     db.refresh(db_license_type)
     return db_license_type

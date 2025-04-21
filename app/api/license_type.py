@@ -5,7 +5,12 @@ import uuid
 
 from app.api.deps import get_db, get_current_active_user, require_roles
 from app.crud import license_type as crud
-from app.schemas.license_type import LicenseType, LicenseTypeCreate, LicenseTypeList, LicenseTypeUpdate
+from app.schemas.license_type import (
+    LicenseType,
+    LicenseTypeCreate,
+    LicenseTypeList,
+    LicenseTypeUpdate,
+)
 
 router = APIRouter()
 
@@ -15,7 +20,7 @@ def create_license_type(
     *,
     db: Session = Depends(get_db),
     license_type_in: LicenseTypeCreate,
-    _: dict = Depends(require_roles("admin"))  # Only admin can create
+    _: dict = Depends(require_roles("admin")),  # Only admin can create
 ):
     """
     Create a new license type.
@@ -26,9 +31,9 @@ def create_license_type(
     if existing_license_type:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"License type with name '{license_type_in.type_name}' already exists"
+            detail=f"License type with name '{license_type_in.type_name}' already exists",
         )
-    
+
     # Create the new license type
     return crud.create_license_type(db=db, license_type=license_type_in)
 
@@ -46,18 +51,15 @@ def list_license_types(
     """
     license_types = crud.get_license_types(db, skip=skip, limit=limit)
     total = crud.count_license_types(db)
-    
-    return {
-        "items": license_types,
-        "total": total
-    }
+
+    return {"items": license_types, "total": total}
 
 
 @router.get("/{license_type_id}", response_model=LicenseType)
 def get_license_type(
     *,
     db: Session = Depends(get_db),
-    license_type_id: uuid.UUID, # Any authenticated user can access
+    license_type_id: uuid.UUID,  # Any authenticated user can access
 ):
     """
     Get a specific license type by ID.
@@ -66,8 +68,7 @@ def get_license_type(
     license_type = crud.get_license_type_by_id(db, license_type_id=license_type_id)
     if not license_type:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="License type not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="License type not found"
         )
     return license_type
 
@@ -78,7 +79,7 @@ def update_license_type(
     db: Session = Depends(get_db),
     license_type_id: uuid.UUID,
     license_type_in: LicenseTypeUpdate,
-    _: dict = Depends(require_roles("admin"))  # Only admin can update
+    _: dict = Depends(require_roles("admin")),  # Only admin can update
 ):
     """
     Update a license type.
@@ -88,28 +89,35 @@ def update_license_type(
     db_license_type = crud.get_license_type_by_id(db, license_type_id=license_type_id)
     if not db_license_type:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="License type not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="License type not found"
         )
-    
+
     # If changing the type name, check if the new name already exists
-    if license_type_in.type_name and license_type_in.type_name != db_license_type.type_name:
-        existing_license_type = crud.get_license_type_by_name(db, license_type_in.type_name)
+    if (
+        license_type_in.type_name
+        and license_type_in.type_name != db_license_type.type_name
+    ):
+        existing_license_type = crud.get_license_type_by_name(
+            db, license_type_in.type_name
+        )
         if existing_license_type:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"License type with name '{license_type_in.type_name}' already exists"
+                detail=f"License type with name '{license_type_in.type_name}' already exists",
             )
-    
+
     # Update the license type
-    return crud.update_license_type(db=db, db_license_type=db_license_type, license_type=license_type_in)
+    return crud.update_license_type(
+        db=db, db_license_type=db_license_type, license_type=license_type_in
+    )
+
 
 @router.delete("/{license_type_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_license_type(
     *,
     db: Session = Depends(get_db),
     license_type_id: uuid.UUID,
-    _: dict = Depends(require_roles("admin"))  # Only admin can delete
+    _: dict = Depends(require_roles("admin")),  # Only admin can delete
 ):
     """
     Delete a license type.
@@ -119,10 +127,9 @@ def delete_license_type(
     db_license_type = crud.get_license_type_by_id(db, license_type_id=license_type_id)
     if not db_license_type:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="License type not found"
+            status_code=status.HTTP_404_NOT_FOUND, detail="License type not found"
         )
-    
+
     # Delete the license type
     crud.delete_license_type(db=db, db_license_type=db_license_type)
     return None

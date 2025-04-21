@@ -10,6 +10,7 @@ logger = getLogger(__name__)
 def get_student(db: Session, student_id: int):
     return db.query(Student).filter(Student.id == student_id).first()
 
+
 def create_student(db: Session, student_in: StudentCreate):
 
     student = Student(user_id=student_in.user_id)

@@ -9,20 +9,27 @@ logger = getLogger(__name__)
 
 router = APIRouter()
 
+
 @router.post("/", response_model=Student, status_code=status.HTTP_201_CREATED)
 def create_student(
     student_in: StudentCreate,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles(["staff", "admin"]))
+    current_user=Depends(require_roles(["staff", "admin"])),
 ):
     return crud_student.create_student(db=db, student_in=student_in)
 
+
 @router.get("/{student_id}", response_model=Student)
-def read_student(student_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_active_user)):
+def read_student(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_active_user),
+):
     student = crud_student.get_student(db, student_id=student_id)
     if not student:
         raise HTTPException(status_code=404, detail="Student not found")
     return student
+
 
 @router.get("/")
 def list_student(current_user=Depends(get_current_active_user)):
