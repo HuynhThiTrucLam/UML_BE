@@ -1,3 +1,4 @@
+from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.crud import student as crud_student
@@ -21,7 +22,7 @@ def create_student(
 
 @router.get("/{student_id}", response_model=Student)
 def read_student(
-    student_id: int,
+    student_id: UUID,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_active_user),
 ):
@@ -32,6 +33,11 @@ def read_student(
 
 
 @router.get("/")
-def list_student(current_user=Depends(get_current_active_user)):
-    logger(f"current_user: {current_user}")
-    return []
+def list_student(
+    db: Session = Depends(get_db), current_user=Depends(get_current_active_user)
+):
+    students = crud_student.get_students(db=db, skip=0, limit=100)
+    print(students)
+    if not len(students):
+        raise HTTPException(status_code=404, detail="No students found")
+    return students

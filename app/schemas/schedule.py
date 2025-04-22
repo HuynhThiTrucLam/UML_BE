@@ -4,23 +4,25 @@ from datetime import datetime, date
 
 from app.api import course
 from app.models import instructor
+from app.schemas.course import Course
 
 
 class LicenseTypeInfo(BaseModel):
-    id: UUID4
-    type_name: str
+    id: Optional[UUID4]
+    type_name: Optional[str]
 
     model_config = {"from_attributes": True}
 
 
 class ScheduleBase(BaseModel):
-    course_id: UUID4
+    course_id: Optional[UUID4]
     start_time: datetime
     end_time: datetime
     location: str
     type: str
     instructor_id: Optional[str]
     max_students: int
+    course: Optional[Dict] = None
 
 
 class ScheduleCreate(ScheduleBase):

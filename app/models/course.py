@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, UUID, ForeignKey, Date, CheckCon
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 import uuid
-from datetime import date, datetime
+from datetime import date
 
 
 class Course(Base):
@@ -50,3 +50,4 @@ class Course(Base):
         "HealthCheckSchedule", back_populates="course"
     )
     schedules = relationship("Schedule", back_populates="course")
+    exams = relationship("Exam", back_populates="course")

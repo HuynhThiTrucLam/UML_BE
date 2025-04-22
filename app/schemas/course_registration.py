@@ -94,3 +94,87 @@ class CourseRegistration(BaseModel):
         "arbitrary_types_allowed": True,
         "use_enum_values": True,
     }
+
+
+class CoursePersonalData(BaseModel):
+    name: str
+    identityNumber: str
+    address: str
+    phone: str
+    gender: str
+    birthDate: str
+    licenseType: str
+    email: str
+    healthCheckDocURL: str
+
+
+class PersonalImgData(BaseModel):
+    avatar: str
+    cardImgFront: str
+    cardImgBack: str
+
+
+class CourseType(BaseModel):
+    id: str
+    name: str
+    licenseTypeId: str
+    examDate: str
+    startDate: str
+    endDate: str
+    registeredCount: int
+    maxStudents: int
+
+
+class HealthCheckType(BaseModel):
+    id: str
+    name: str
+    date: str
+    address: str
+    courseId: str
+
+
+class ChooseData(BaseModel):
+    course: CourseType
+    healthCheck: HealthCheckType
+
+
+class CourseStudent(BaseModel):
+    personalData: CoursePersonalData
+    personalImgData: PersonalImgData
+    chooseData: ChooseData
+
+    class Config:
+        orm_mode = True
+
+
+class TypeOfLicense(BaseModel):
+    id: str
+    name: str
+
+
+class ScheduleType(BaseModel):
+    id: str
+    courseId: str
+    typeOfLicense: TypeOfLicense
+    type: str
+    startTime: str
+    endTime: str
+    location: str
+    teacher: Optional[str] = None
+
+class CourseRegistrationResponse(BaseModel):
+    id: UUID4
+    method: str
+    registrationDate: str
+    status: str
+    studentInfor: CourseStudent
+    scheduleInfor: list[ScheduleType]
+    scoreOverall: Optional[str] = None
+    receiveDate: Optional[str] = None
+    location: Optional[str] = None
+
+    model_config = {
+        "from_attributes": True,
+        "arbitrary_types_allowed": True,
+        "use_enum_values": True,
+    }

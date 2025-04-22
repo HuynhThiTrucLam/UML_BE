@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api import (
     course_registration,
+    payment_method,
     user,
     student,
     staff,
@@ -8,6 +9,7 @@ from app.api import (
     exam,
     payment,
     license_type,
+    license,
     health_check_schedule,
     health_check_document,
     personal_infor_document,
@@ -33,6 +35,9 @@ app.include_router(
     license_type.router, prefix="/api/license_type", tags=["license_types"]
 )
 app.include_router(
+    license.router, prefix="/api/licenses", tags=["licenses"]
+)
+app.include_router(
     health_check_schedule.router,
     prefix="/api/health_check_schedule",
     tags=["health_check_schedule"],
@@ -53,6 +58,10 @@ app.include_router(
     tags=["course_registration"],
 )
 app.include_router(schedule.router, prefix="/api/schedule", tags=["schedule"])
+app.include_router(payment_method.router, prefix="/api/payment_method", tags=["payment_method"])
+
+
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,

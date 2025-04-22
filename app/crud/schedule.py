@@ -43,8 +43,12 @@ def get_schedule(db: Session, start_time: str, end_time: str):
             "instructor_id": schedule.instructor_id,
             "max_students": schedule.max_students,
             "license_type": {
-                "id": schedule.course.license_type.id,
-                "type_name": schedule.course.license_type.type_name,
+                "id": schedule.course.license_type.id if schedule.course else uuid.uuid4(),
+                "type_name": schedule.course.license_type.type_name if schedule.course else "",
+            },
+            "course": {
+                "id": schedule.course.id if schedule.course else "",
+                "name": schedule.course.course_name if schedule.course else "",
             },
         }
         schedule_list.append(schedule_dict)

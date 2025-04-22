@@ -2,6 +2,8 @@ from datetime import datetime
 from pydantic import BaseModel, UUID4
 from typing import Optional
 
+from app.schemas.user import User
+
 
 class StudentBase(BaseModel):
     user_id: UUID4
@@ -21,4 +23,5 @@ class StudentInDB(StudentBase):
 
 
 class Student(StudentInDB):
+    user: Optional[User] = None
     pass

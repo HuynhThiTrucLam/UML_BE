@@ -2,11 +2,14 @@ from pydantic import BaseModel, UUID4, Field, field_validator
 from typing import Optional
 from datetime import date
 
+from app.schemas.license_type import LicenseType
+
 
 # Base class with common attributes
 class CourseBase(BaseModel):
     course_name: str = Field(..., example="B1 Driving Course")
     license_type_id: UUID4 = Field(..., example="123e4567-e89b-12d3-a456-426614174000")
+    license_type: LicenseType
     start_date: date = Field(..., example="2025-05-01")
     end_date: date = Field(..., example="2025-06-30")
     max_students: int = Field(..., example=30)

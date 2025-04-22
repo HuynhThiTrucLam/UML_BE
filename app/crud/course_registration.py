@@ -168,7 +168,19 @@ def _create_health_check_document(
 
 def _determine_registration_method(role: str) -> str:
     """Determine registration method based on user role"""
-    return METHOD_OFFLINE if role == ROLE_ADMIN else METHOD_ONLINE
+    # Add debug logging to see the exact role value
+    logger.info(f"Determining method for role: '{role}'")
+    
+    # Make comparison case-insensitive and strip whitespace
+    normalized_role = role.lower().strip() if role else ""
+    normalized_admin = ROLE_ADMIN.lower().strip()
+    
+    is_admin = normalized_role == normalized_admin
+    method = METHOD_OFFLINE if is_admin else METHOD_ONLINE
+    
+    logger.info(f"Role comparison: '{normalized_role}' == '{normalized_admin}' = {is_admin}, Method: {method}")
+    
+    return method
 
 
 def get_course_registration_by_id(
@@ -302,3 +314,278 @@ def get_course_registration_by_identity_number(
 
     # Reuse the existing function to get the full details
     return get_course_registration_by_id(db, course_registration.id)
+
+
+def get_all_course_registrations(
+    db: Session, type: str, status: str, skip: int = 0, limit: int = 100
+) -> list[CourseRegistrationSchema]:
+    """
+    Get all course registrations with pagination.
+
+    Args:
+        db: SQLAlchemy database session
+        skip: Number of records to skip (for pagination)
+        limit: Maximum number of records to return
+
+    Returns:
+        list[CourseRegistrationResponse]: List of course registration response records
+    """
+    from app.schemas.course_registration import (
+        CourseRegistrationResponse,
+        CourseStudent,
+        CoursePersonalData,
+        PersonalImgData,
+        ChooseData,
+        CourseType,
+        HealthCheckType,
+        ScheduleType,
+        TypeOfLicense,
+    )
+    from app.models.schedule import Schedule
+    from app.models.license_type import LicenseType
+
+    db_course_registrations = (
+        db.query(CourseRegistration)
+        .filter((CourseRegistration.method == type if type != "all" else True))
+        .filter((CourseRegistration.status == status if status != "all" else True))
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    print(f"db_course_registrations: {len(db_course_registrations)}")
+    result = []
+
+    for registration in db_course_registrations:
+        # Get associated data
+        student = registration.student
+        course = registration.course
+        schedules = (
+            db.query(Schedule).filter(Schedule.course_id == course.id).all()
+            if course
+            else []
+        )
+
+        # Get personal information
+        personal_info = None
+        if student and student.user_id:
+            personal_info = (
+                db.query(PersonalInforDocument)
+                .filter(PersonalInforDocument.user_id == student.user_id)
+                .first()
+            )
+
+        # Get health check document
+        health_check_doc = None
+        if student:
+            health_check_doc = (
+                db.query(HealthCheckDocumentModel)
+                .filter(HealthCheckDocumentModel.student_id == student.id)
+                .first()
+            )
+
+        if not personal_info or not student or not course:
+            logger.warning(f"Missing related data for registration {registration.id}")
+            continue
+
+        # Get license type
+        license_type = (
+            db.query(LicenseType)
+            .filter(LicenseType.id == course.license_type_id)
+            .first()
+            if course
+            else None
+        )
+        # Build personal data
+        personal_data = CoursePersonalData(
+            name=personal_info.full_name,
+            identityNumber=personal_info.identity_number,
+            address=personal_info.address,
+            phone=student.user.phone_number if student.user else "",
+            gender=personal_info.gender,
+            birthDate=personal_info.date_of_birth,  # date_of_birth is already a string
+            licenseType=license_type.type_name if license_type else "",
+            email=student.user.email if student.user else "",
+            healthCheckDocURL=health_check_doc.document if health_check_doc else "",
+        )
+
+        # Build personal image data
+        personal_img_data = PersonalImgData(
+            avatar=personal_info.avatar if personal_info else "",
+            cardImgFront=personal_info.identity_img_front if personal_info else "",
+            cardImgBack=personal_info.identity_img_back if personal_info else "",
+        )
+
+        # Build course data
+        course_data = CourseType(
+            id=str(course.id),
+            name=course.course_name,
+            licenseTypeId=str(course.license_type_id),
+            examDate=course.end_date.strftime("%Y-%m-%d") if course.end_date else "",
+            startDate=(
+                course.start_date.strftime("%Y-%m-%d") if course.start_date else ""
+            ),
+            endDate=course.end_date.strftime("%Y-%m-%d") if course.end_date else "",
+            registeredCount=(
+                course.registered_count if hasattr(course, "registered_count") else 0
+            ),
+            maxStudents=course.max_students if hasattr(course, "max_students") else 0,
+        )
+
+        # Build health check data
+        health_check_data = HealthCheckType(
+            id=str(health_check_doc.health_check_id) if health_check_doc else "",
+            name=(
+                health_check_doc.health_check.description
+                if health_check_doc and hasattr(health_check_doc, "health_check")
+                else ""
+            ),
+            date=(
+                health_check_doc.health_check.scheduled_datetime
+                if isinstance(health_check_doc.health_check.scheduled_datetime, str)
+                else (
+                    health_check_doc.health_check.scheduled_datetime.strftime(
+                        "%Y-%m-%d"
+                    )
+                    if health_check_doc
+                    and hasattr(health_check_doc, "health_check")
+                    and health_check_doc.health_check.scheduled_datetime
+                    else ""
+                )
+            ),
+            address=(
+                health_check_doc.health_check.address
+                if health_check_doc and hasattr(health_check_doc, "health_check")
+                else ""
+            ),
+            courseId=str(course.id),
+        )
+
+        # Build choose data
+        choose_data = ChooseData(course=course_data, healthCheck=health_check_data)
+
+        # Build student info
+        student_info = CourseStudent(
+            personalData=personal_data,
+            personalImgData=personal_img_data,
+            chooseData=choose_data,
+        )
+
+        # Build schedule info
+        schedule_info = []
+        for schedule in schedules:
+            license_type_obj = (
+                db.query(LicenseType)
+                .filter(LicenseType.id == course.license_type_id)
+                .first()
+                if course
+                else None
+            )
+
+            schedule_info.append(
+                ScheduleType(
+                    id=str(schedule.id),
+                    courseId=str(schedule.course_id),
+                    typeOfLicense=TypeOfLicense(
+                        id=str(license_type_obj.id) if license_type_obj else "",
+                        name=license_type_obj.type_name if license_type_obj else "",
+                    ),
+                    type=schedule.type if hasattr(schedule, "type") else "",
+                    startTime=(
+                        schedule.start_time.strftime("%Y-%m-%d %H:%M:%S")
+                        if hasattr(schedule, "start_time") and schedule.start_time
+                        else ""
+                    ),
+                    endTime=(
+                        schedule.end_time.strftime("%Y-%m-%d %H:%M:%S")
+                        if hasattr(schedule, "end_time") and schedule.end_time
+                        else ""
+                    ),
+                    location=schedule.location if hasattr(schedule, "location") else "",
+                    teacher=schedule.teacher if hasattr(schedule, "teacher") else None,
+                )
+            )
+
+        # Create response object
+        response_obj = CourseRegistrationResponse(
+            id=registration.id,
+            method=registration.method,
+            registrationDate=(
+                registration.created_at
+                if isinstance(registration.created_at, str)
+                else (
+                    registration.created_at.strftime("%Y-%m-%d")
+                    if registration.created_at
+                    else ""
+                )
+            ),
+            status=registration.status,
+            studentInfor=student_info,
+            scheduleInfor=schedule_info,
+            scoreOverall=None,  # Not provided in the source data
+            receiveDate=None,  # Not provided in the source data
+            location=None,  # Not provided in the source data
+        )
+
+        result.append(response_obj)
+
+    return result
+
+
+def update_course_registration(
+    db: Session, course_registration_id: uuid.UUID, course_registration: Dict[str, Any]
+) -> CourseRegistrationSchema:
+    """
+    Update a course registration by its ID.
+
+    Args:
+        db: SQLAlchemy database session
+        course_registration_id: The ID of the course registration
+        course_registration: Dictionary containing the fields to update
+
+    Returns:
+        CourseRegistration: The updated course registration record
+    """
+    db_course_registration = (
+        db.query(CourseRegistration)
+        .filter(CourseRegistration.id == course_registration_id)
+        .first()
+    )
+    if not db_course_registration:
+        raise HTTPException(status_code=404, detail="Course registration not found")
+
+    for key, value in course_registration.__dict__.items():
+        setattr(db_course_registration, key, value)
+
+    db.commit()
+    db.refresh(db_course_registration)
+
+    return CourseRegistrationSchema.model_validate(
+        db_course_registration, from_attributes=True
+    )
+
+
+def delete_course_registration(
+    db: Session, course_registration_id: uuid.UUID
+) -> Dict[str, str]:
+    """
+    Delete a course registration by its ID.
+
+    Args:
+        db: SQLAlchemy database session
+        course_registration_id: The ID of the course registration
+
+    Returns:
+        dict: A dictionary containing the status code and success message
+    """
+    db_course_registration = (
+        db.query(CourseRegistration)
+        .filter(CourseRegistration.id == course_registration_id)
+        .first()
+    )
+    if not db_course_registration:
+        raise HTTPException(status_code=404, detail="Course registration not found")
+
+    db.delete(db_course_registration)
+    db.commit()
+
+    return {"status_code": 200, "message": "Course registration deleted successfully."}

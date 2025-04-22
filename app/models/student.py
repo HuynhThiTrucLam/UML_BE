@@ -4,6 +4,8 @@ from app.core.database import Base
 import uuid
 from datetime import datetime
 
+from app.models import exam_result
+
 
 class Student(Base):
     __tablename__ = "students"
@@ -22,5 +24,8 @@ class Student(Base):
     health_check_documents = relationship(
         "HealthCheckDocument", back_populates="student"
     )
+
     course_registrations = relationship("CourseRegistration", back_populates="student")
-    payments = relationship("Payment", back_populates="student")
+    exam_results = relationship(
+        "ExamResult", back_populates="student", cascade="all, delete-orphan"
+    )

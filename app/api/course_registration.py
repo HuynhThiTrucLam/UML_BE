@@ -1,11 +1,19 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    HTTPException,
+    Query,
+    status as status_code,
+    Response,
+)
 from sqlalchemy.orm import Session
-from app.api.deps import get_db
+from app.api.deps import get_db, require_roles
 from app.crud import course_registration as crud_cousre_registration
 from app.schemas.course_registration import (
     CourseRegistration,
     CourseRegistrationCreate,
+    CourseRegistrationResponse,
     CourseRegistrationUpdate,
 )
 from typing import Dict, Any
@@ -19,6 +27,7 @@ def create_course_registration(
     course_registration: CourseRegistrationCreate,
     response: Response,
     db: Session = Depends(get_db),
+    
 ):
     result = crud_cousre_registration.create_course_registration(
         db=db, course_registration=course_registration
@@ -38,7 +47,7 @@ def get_course_registration(
     )
     if not db_course_registration:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status_code.HTTP_404_NOT_FOUND,
             detail="Course registration not found",
         )
     return db_course_registration
@@ -57,23 +66,29 @@ def get_course_registration_by_identity_number(
     )
     if not db_course_registration:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status_code.HTTP_404_NOT_FOUND,
             detail="Course registration not found",
         )
     return db_course_registration
 
 
 # Get all course registrations
-@router.get("/", response_model=Dict[str, Any])
+@router.get("/", response_model=list[CourseRegistrationResponse])
 def get_all_course_registrations(
+    type: str = Query("all", enum=["online", "offline", "all"]),
+    status: str = Query(
+        "all", enum=["pending", "payment", "rejacted", "successful", "all"]
+    ),
     db: Session = Depends(get_db),
 ):
     db_course_registrations = crud_cousre_registration.get_all_course_registrations(
-        db=db
+        db=db,
+        type=type,
+        status=status,
     )
     if not db_course_registrations:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status_code.HTTP_404_NOT_FOUND,
             detail="No course registrations found",
         )
     return db_course_registrations
@@ -93,7 +108,7 @@ def update_course_registration(
     )
     if not db_course_registration:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status_code.HTTP_404_NOT_FOUND,
             detail="Course registration not found",
         )
     return db_course_registration
@@ -110,7 +125,8 @@ def delete_course_registration(
     )
     if not result:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status_code.HTTP_404_NOT_FOUND,
             detail="Course registration not found",
         )
     return result
+    
