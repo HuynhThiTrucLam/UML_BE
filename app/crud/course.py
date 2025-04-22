@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from app.models.course import Course
 from app.schemas.course import CourseCreate, CourseUpdate, CourseList
 import uuid
@@ -113,10 +113,31 @@ def update_course(db: Session, course_id: uuid.UUID, course_in: CourseUpdate):
         raise ValueError(f"Database error: {e}")
 
 
-def delete_course(db: Session, course_id: uuid.UUID):
-    course = get_course(db=db, course_id=course_id)
-    if course is None:
-        return None
-    db.delete(course)
-    db.commit()
-    return course
+def delete_course(db: Session, course_id: uuid.UUID) -> bool:
+    """
+    Delete a course by ID
+    
+    Args:
+        db: Database session
+        course_id: UUID of the course to delete
+        
+    Returns:
+        bool: True if deletion was successful, False otherwise
+    """
+    try:
+        # First, fetch all necessary relationships that you might need in the response
+        course = db.query(Course).options(
+            joinedload(Course.license_type),  # Eagerly load license_type
+            joinedload(Course.schedules)      # Eagerly load schedules if needed
+        ).filter(Course.id == course_id).first()
+        
+        if not course:
+            return False
+        
+        # Store any data needed for the response
+        result = db.query(Course).filter(Course.id == course_id).delete()
+        db.commit()
+        return result > 0
+    except Exception as e:
+        db.rollback()
+        raise e

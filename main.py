@@ -14,6 +14,7 @@ from app.api import (
     health_check_document,
     personal_infor_document,
     schedule,
+    instructor
 )
 from app.core.database import engine, Base
 from app.core.config import settings
@@ -59,7 +60,7 @@ app.include_router(
 )
 app.include_router(schedule.router, prefix="/api/schedule", tags=["schedule"])
 app.include_router(payment_method.router, prefix="/api/payment_method", tags=["payment_method"])
-
+app.include_router(instructor.router, prefix="/api/instructor", tags=["instructor"])
 
 
 # CORS middleware

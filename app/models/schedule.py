@@ -1,7 +1,6 @@
 from sqlalchemy import Column, String, Integer, UUID, ForeignKey, CheckConstraint
 from sqlalchemy.orm import relationship
 import uuid
-from app.api import exam
 from app.core.database import Base
 
 

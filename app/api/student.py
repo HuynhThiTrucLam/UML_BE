@@ -1,8 +1,9 @@
+from typing import Optional
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.crud import student as crud_student
-from app.schemas.student import Student, StudentCreate
+from app.schemas.student import Student, StudentCreate, StudentUpdate
 from app.api.deps import get_db, get_current_active_user, require_roles
 from logging import getLogger
 
@@ -41,3 +42,26 @@ def list_student(
     if not len(students):
         raise HTTPException(status_code=404, detail="No students found")
     return students
+
+
+@router.get('/registered/')
+def list_registered_students(
+    db: Session = Depends(get_db),
+    course_id: Optional[UUID] = None,
+):
+    students = crud_student.get_registered_students(db, course_id=course_id)
+    if not len(students):
+        raise HTTPException(status_code=404, detail="No students found")
+    return students
+
+
+@router.put("/registered/{student_id}")
+def update_registered_student(
+    student_id: UUID,
+    student_in: StudentUpdate,
+    db: Session = Depends(get_db),
+):
+    student = crud_student.get_student(db, student_id=student_id)
+    if not student:
+        raise HTTPException(status_code=404, detail="Student not found")
+    return crud_student.update_scores(db=db, student_id=student_id, student_in=student_in)

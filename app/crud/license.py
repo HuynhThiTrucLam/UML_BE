@@ -5,7 +5,7 @@ from typing import List, Optional
 import uuid
 
 
-def get_licenses(db: Session, skip: int = 0, limit: int = 100) -> List[License]:
+def get_licenses(db: Session, skip: int = 0, limit: int = 100):
     """Get all licenses with pagination"""
     return db.query(License).offset(skip).limit(limit).all()
 

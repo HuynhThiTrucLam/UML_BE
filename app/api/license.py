@@ -38,13 +38,12 @@ def create_license(
     return crud.create_license(db=db, license_obj=license_in)
 
 
-@router.get("/", response_model=LicenseList)
+@router.get("/")
 def list_licenses(
     *,
     db: Session = Depends(get_db),
     skip: int = Query(0, ge=0),
     limit: int = Query(100, le=100),
-    _: dict = Depends(require_roles(["admin", "staff"])),  # Admin or staff can access
 ):
     """
     Retrieve licenses with pagination.
@@ -60,7 +59,7 @@ def list_licenses(
 def get_license(
     *,
     db: Session = Depends(get_db),
-    license_id: int,
+    license_id: uuid.UUID,
     _: dict = Depends(require_roles(["admin", "staff"])),  # Admin or staff can access
 ):
     """
@@ -79,7 +78,7 @@ def get_license(
 def get_licenses_by_student(
     *,
     db: Session = Depends(get_db),
-    student_id: int,
+    student_id: uuid.UUID,
     _: dict = Depends(require_roles(["admin", "staff"])),  # Admin or staff can access
 ):
     """
@@ -94,7 +93,7 @@ def get_licenses_by_student(
 def get_licenses_by_type(
     *,
     db: Session = Depends(get_db),
-    license_type_id: int,
+    license_type_id: uuid.UUID,
     _: dict = Depends(require_roles(["admin", "staff"])),  # Admin or staff can access
 ):
     """
@@ -128,7 +127,7 @@ def get_license_by_number(
 def update_license(
     *,
     db: Session = Depends(get_db),
-    license_id: int,
+    license_id: uuid.UUID,
     license_in: LicenseUpdate,
     _: dict = Depends(require_roles("admin")),  # Only admin can update
 ):
@@ -165,7 +164,7 @@ def update_license(
 def delete_license(
     *,
     db: Session = Depends(get_db),
-    license_id: int,
+    license_id: uuid.UUID,
     _: dict = Depends(require_roles("admin")),  # Only admin can delete
 ):
     """

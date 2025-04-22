@@ -12,6 +12,10 @@ class StudentBase(BaseModel):
 class StudentCreate(StudentBase):
     pass
 
+class StudentUpdate(BaseModel):
+    course_id: UUID4
+    theory_score: Optional[float] = None
+    practical_score: Optional[float] = None
 
 class StudentInDB(StudentBase):
     id: UUID4

@@ -9,7 +9,6 @@ from app.schemas.license_type import LicenseType
 class CourseBase(BaseModel):
     course_name: str = Field(..., example="B1 Driving Course")
     license_type_id: UUID4 = Field(..., example="123e4567-e89b-12d3-a456-426614174000")
-    license_type: LicenseType
     start_date: date = Field(..., example="2025-05-01")
     end_date: date = Field(..., example="2025-06-30")
     max_students: int = Field(..., example=30)
@@ -61,6 +60,7 @@ class Course(CourseBase):
     current_students: int
     created_at: date
     updated_at: date
+    license_type: LicenseType
 
     model_config = {"from_attributes": True, "arbitrary_types_allowed": True}
 

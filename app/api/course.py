@@ -97,18 +97,30 @@ def update_course(
 
 
 # delete course
-@router.delete("/{course_id}", response_model=Course, summary="Delete Course")
+@router.delete(
+    "/{course_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete Course",
+)
 def delete_course(
     course_id: uuid.UUID,
     db: Session = Depends(get_db),
-    current_user=Depends(require_roles("admin")),
+    _: dict = Depends(require_roles("admin")),  # Only admin can delete
 ):
-    """
-    Delete a course by ID.
-
-    Only administrators can delete courses.
-    """
-    course = crud_course.delete_course(db=db, course_id=course_id)
-    if course is None:
-        raise HTTPException(status_code=404, detail="Course not found")
-    return course
+    # First check if course exists
+    existing_course = crud_course.get_course(db, course_id=course_id)
+    if not existing_course:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Course not found"
+        )
+    # Now perform deletion
+    deletion_successful = crud_course.delete_course(db=db, course_id=course_id)
+    if not deletion_successful:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete course"
+        )
+    
+    # For 204 No Content, return None
+    return None
